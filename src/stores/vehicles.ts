@@ -8,9 +8,9 @@ export const useVehiclesStore = defineStore('vehicles', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  // Subscribe to live query
+  // Subscribe to live query - filter out deleted items
   const subscription = liveQuery(() =>
-    db.vehicles.where('deletedAt').equals(null as any).toArray()
+    db.vehicles.filter((v) => !v.deletedAt).toArray()
   ).subscribe({
     next: (result) => {
       vehicles.value = result

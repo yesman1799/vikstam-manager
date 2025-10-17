@@ -8,9 +8,9 @@ export const useWarehousesStore = defineStore('warehouses', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  // Subscribe to live query
+  // Subscribe to live query - filter out deleted items
   const subscription = liveQuery(() =>
-    db.warehouses.where('deletedAt').equals(null as any).toArray()
+    db.warehouses.filter((w) => !w.deletedAt).toArray()
   ).subscribe({
     next: (result) => {
       warehouses.value = result

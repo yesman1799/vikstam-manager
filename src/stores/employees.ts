@@ -8,9 +8,9 @@ export const useEmployeesStore = defineStore('employees', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  // Subscribe to live query
+  // Subscribe to live query - filter out deleted items
   const subscription = liveQuery(() =>
-    db.employees.where('deletedAt').equals(null as any).toArray()
+    db.employees.filter((e) => !e.deletedAt).toArray()
   ).subscribe({
     next: (result) => {
       employees.value = result
