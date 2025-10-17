@@ -28,3 +28,11 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# TypeScript build outputs (keep source .d.ts files)
+src/**/*.d.ts
+!src/env.d.ts
+src/**/*.js
+!vite.config.ts
+!eslint.config.ts
+*.js.map

@@ -2,35 +2,44 @@
 import { computed, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import {
-  Squares2X2Icon, BuildingOfficeIcon, TruckIcon,
-  UsersIcon, ChartBarIcon, Cog6ToothIcon, MagnifyingGlassIcon
+  Squares2X2Icon,
+  BuildingOfficeIcon,
+  TruckIcon,
+  UsersIcon,
+  ChartBarIcon,
+  Cog6ToothIcon,
+  MagnifyingGlassIcon,
+  WifiIcon,
+  CloudIcon
 } from '@heroicons/vue/24/outline'
+import { useOnlineStatus } from '@/composables/useOnlineStatus'
 
 const route = useRoute()
 const search = ref('')
+const { isOnline } = useOnlineStatus()
 
 const nav = [
-  { to: '/dashboard',  label: 'Dashboard',         short: 'Dash',   icon: Squares2X2Icon },
-  { to: '/warehouses', label: 'Sklady a stavby',   short: 'Sklady', icon: BuildingOfficeIcon },
-  { to: '/vehicles',   label: 'Firemní auta',      short: 'Auta',   icon: TruckIcon },
-  { to: '/employees',  label: 'Zaměstnanci',       short: 'Lidé',   icon: UsersIcon },
-  { to: '/reports',    label: 'Reporty',           short: 'Report', icon: ChartBarIcon },
-  { to: '/settings',   label: 'Nastavení',         short: 'Nastav', icon: Cog6ToothIcon },
+  { to: '/dashboard', label: 'Dashboard', short: 'Dash', icon: Squares2X2Icon },
+  { to: '/warehouses', label: 'Sklady a stavby', short: 'Sklady', icon: BuildingOfficeIcon },
+  { to: '/vehicles', label: 'Firemní auta', short: 'Auta', icon: TruckIcon },
+  { to: '/employees', label: 'Zaměstnanci', short: 'Lidé', icon: UsersIcon },
+  { to: '/reports', label: 'Reporty', short: 'Report', icon: ChartBarIcon },
+  { to: '/settings', label: 'Nastavení', short: 'Nastav', icon: Cog6ToothIcon }
 ]
 
-const titles: Record<string, { t:string; s:string; search?:boolean }> = {
-  '/dashboard':  { t: 'Dashboard',        s: 'Přehled aktivit a statistik' },
-  '/warehouses': { t: 'Sklady a stavby',  s: 'Všechny lokace a stav položek', search: true },
-  '/vehicles':   { t: 'Firemní auta',     s: 'Přehled vozidel a stavu',       search: true },
-  '/employees':  { t: 'Zaměstnanci',      s: 'Lidé a přiřazené položky',      search: true },
-  '/reports':    { t: 'Reporty',          s: 'Pohyby, výkazy, agregace' },
-  '/settings':   { t: 'Nastavení',        s: 'Konfigurace aplikace' },
+const titles: Record<string, { t: string; s: string; search?: boolean }> = {
+  '/dashboard': { t: 'Dashboard', s: 'Přehled aktivit a statistik' },
+  '/warehouses': { t: 'Sklady a stavby', s: 'Všechny lokace a stav položek', search: true },
+  '/vehicles': { t: 'Firemní auta', s: 'Přehled vozidel a stavu', search: true },
+  '/employees': { t: 'Zaměstnanci', s: 'Lidé a přiřazené položky', search: true },
+  '/reports': { t: 'Reporty', s: 'Pohyby, výkazy, agregace' },
+  '/settings': { t: 'Nastavení', s: 'Konfigurace aplikace' }
 }
-const meta        = computed(() => titles[route.path] ?? titles['/dashboard'])
-const pageTitle   = computed(() => meta.value.t)
-const pageSub     = computed(() => meta.value.s)
-const showSearch  = computed(() => !!meta.value.search)
-const isActive    = (to: string) => route.path === to
+const meta = computed(() => titles[route.path] ?? titles['/dashboard'])
+const pageTitle = computed(() => meta.value.t)
+const pageSub = computed(() => meta.value.s)
+const showSearch = computed(() => !!meta.value.search)
+const isActive = (to: string) => route.path === to
 </script>
 
 <template>
@@ -64,14 +73,30 @@ const isActive    = (to: string) => route.path === to
             <h2 class="text-xl md:text-2xl font-semibold text-gray-900">{{ pageTitle }}</h2>
             <p class="text-xs md:text-sm text-gray-600 mt-1">{{ pageSub }}</p>
           </div>
-          <button v-if="showSearch" class="md:hidden p-2 text-gray-600 hover:text-blue-600">
-            <MagnifyingGlassIcon class="w-6 h-6" />
-          </button>
+          <div class="flex items-center gap-2">
+            <!-- Online/Offline Indicator -->
+            <div
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium"
+              :class="
+                isOnline
+                  ? 'bg-green-50 text-green-700 border border-green-200'
+                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+              "
+            >
+              <component :is="isOnline ? CloudIcon : WifiIcon" class="w-4 h-4" />
+              <span>{{ isOnline ? 'Online' : 'Offline' }}</span>
+            </div>
+            <button v-if="showSearch" class="md:hidden p-2 text-gray-600 hover:text-blue-600">
+              <MagnifyingGlassIcon class="w-6 h-6" />
+            </button>
+          </div>
         </div>
         <div v-if="showSearch" class="border-t bg-white">
           <div class="mx-auto max-w-7xl px-4 py-3">
             <input
-              v-model="search" type="text" placeholder="Vyhledat…"
+              v-model="search"
+              type="text"
+              placeholder="Vyhledat…"
               class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
